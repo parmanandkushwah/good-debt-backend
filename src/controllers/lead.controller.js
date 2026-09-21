@@ -7,13 +7,13 @@ const { AUDIT_ACTIONS, LEAD_STATUS } = require('../constants');
 exports.createLead = async (req, res, next) => {
   const t = await sequelize.transaction();
   try {
-    const { fullName, mobile, email, loanType, loanAmount, employmentType, monthlyIncome, existingEmi, cibilScore, city, state, utmSource, utmMedium, utmCampaign, utmTerm, utmContent, referrer, landingPage, additionalData } = req.body;
+    const { fullName, mobile, email, loanType, loanAmount, employmentType, monthlyIncome, annualIncome, hasGst, existingEmi, cibilScore, city, state, pincode, utmSource, utmMedium, utmCampaign, utmTerm, utmContent, referrer, landingPage, additionalData } = req.body;
     const existing = await Lead.findOne({ where: { mobile, loanType }, order: [['createdAt', 'DESC']] });
     const source = detectSource(utmSource, referrer);
     const leadNumber = await generateLeadNumber();
     const lead = await Lead.create({
-      leadNumber, fullName, mobile, email, loanType, loanAmount, employmentType, monthlyIncome,
-      existingEmi: existingEmi || 0, cibilScore, city, state, source,
+      leadNumber, fullName, mobile, email, loanType, loanAmount, employmentType, monthlyIncome, annualIncome, hasGst,
+      existingEmi: existingEmi || 0, cibilScore, city, state, pincode, source,
       utmSource, utmMedium, utmCampaign, utmTerm, utmContent, referrer, landingPage,
       additionalData: additionalData || {}, isDuplicate: !!existing, parentLeadId: existing?.id || null
     }, { transaction: t });
