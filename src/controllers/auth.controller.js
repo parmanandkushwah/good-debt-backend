@@ -32,6 +32,46 @@ exports.getMe = async (req, res) => {
   res.json({ success: true, user: req.user });
 };
 
+exports.updateProfile = async (req, res, next) => {
+  try {
+    const { name, email, phone } = req.body;
+    if (!name?.trim() || !email?.trim()) {
+      return res.status(400).json({ success: false, message: 'Name and email are required' });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const existing = await User.findOne({ where: { email: normalizedEmail } });
+    if (existing && existing.id !== req.user.id) {
+      return res.status(409).json({ success: false, message: 'Email already exists' });
+    }
+
+    await req.user.update({ name: name.trim(), email: normalizedEmail, phone: phone?.trim() || null });
+    await createAuditLog({ userId: req.user.id, action: AUDIT_ACTIONS.USER_UPDATED, entityType: 'User', entityId: req.user.id, newValues: { name: req.user.name, email: req.user.email, phone: req.user.phone }, req });
+    res.json({ success: true, user: req.user, message: 'Profile updated successfully' });
+  } catch (err) { next(err); }
+};
+
+exports.changePassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ success: false, message: 'Current and new password are required' });
+    }
+    if (newPassword.length < 8) {
+      return res.status(400).json({ success: false, message: 'New password must be at least 8 characters' });
+    }
+    if (currentPassword === newPassword) {
+      return res.status(400).json({ success: false, message: 'New password must be different' });
+    }
+    const isMatch = await req.user.comparePassword(currentPassword);
+    if (!isMatch) return res.status(400).json({ success: false, message: 'Current password is incorrect' });
+
+    await req.user.update({ password: newPassword });
+    await createAuditLog({ userId: req.user.id, action: AUDIT_ACTIONS.USER_UPDATED, entityType: 'User', entityId: req.user.id, newValues: { passwordChanged: true }, req });
+    res.json({ success: true, message: 'Password changed successfully' });
+  } catch (err) { next(err); }
+};
+
 exports.forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
