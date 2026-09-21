@@ -31,6 +31,7 @@ db.FAQ = require('./faq.model')(sequelize, Sequelize.DataTypes);
 db.Notification = require('./notification.model')(sequelize, Sequelize.DataTypes);
 db.AuditLog = require('./auditLog.model')(sequelize, Sequelize.DataTypes);
 db.Setting = require('./setting.model')(sequelize, Sequelize.DataTypes);
+db.HeroOffer = require('./heroOffer.model')(sequelize, Sequelize.DataTypes);
 
 // Associations
 Object.keys(db).forEach(modelName => {

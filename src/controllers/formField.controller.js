@@ -2,6 +2,19 @@ const { LoanFormField } = require('../models');
 const { createAuditLog } = require('../utils/audit.utils');
 const { AUDIT_ACTIONS } = require('../constants');
 
+exports.getAll = async (req, res, next) => {
+  try {
+    const where = {};
+    if (req.query.productId) where.loanProductId = req.query.productId;
+    if (req.query.active === 'true') where.isActive = true;
+    const fields = await LoanFormField.findAll({
+      where,
+      order: [['loanProductId', 'ASC'], ['displayOrder', 'ASC']]
+    });
+    res.json({ success: true, data: fields });
+  } catch (err) { next(err); }
+};
+
 exports.getByProduct = async (req, res, next) => {
   try {
     const fields = await LoanFormField.findAll({

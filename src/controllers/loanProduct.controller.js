@@ -29,6 +29,10 @@ exports.getById = async (req, res, next) => {
 
 exports.create = async (req, res, next) => {
   try {
+    const { loanType, name, slug } = req.body;
+    if (!loanType) return res.status(400).json({ success: false, message: 'loanType is required' });
+    if (!name) return res.status(400).json({ success: false, message: 'name is required' });
+    if (!slug) return res.status(400).json({ success: false, message: 'slug is required' });
     const product = await LoanProduct.create(req.body);
     await createAuditLog({ userId: req.user.id, action: AUDIT_ACTIONS.PRODUCT_CHANGED, entityType: 'LoanProduct', entityId: product.id, newValues: req.body, req });
     res.status(201).json({ success: true, data: product });

@@ -16,6 +16,7 @@ const followUpRoutes = require('./routes/followUp.routes');
 const faqRoutes = require('./routes/faq.routes');
 const testimonialRoutes = require('./routes/testimonial.routes');
 const settingsRoutes = require('./routes/settings.routes');
+const heroOfferRoutes = require('./routes/heroOffer.routes');
 const { errorHandler, notFound } = require('./middleware/error.middleware');
 
 const app = express();
@@ -51,6 +52,8 @@ app.use('/api/followups', followUpRoutes);
 app.use('/api/faqs', faqRoutes);
 app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/uploads', require('express').static(require('path').resolve(__dirname, '../uploads')));
+app.use('/api/hero-offers', heroOfferRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
